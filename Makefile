@@ -1,21 +1,16 @@
 VERSION := 8.0.3
 
-# soname - libcs50.so.<major_version>
-SONAME := libcs50.so.$(shell echo $(VERSION) | head -c 1)
-
 # installation directory (/usr/local by default)
 DESTDIR ?= /usr/local
 
 .PHONY: build
 build: clean
 	$(CC) -c -fPIC -std=gnu99 -Wall -o cs50.o src/cs50.c
-	$(CC) -shared -Wl,-soname,$(SONAME) -o libcs50.so.$(VERSION) cs50.o
+	$(CC) -shared -o libcs50.so cs50.o
 	rm -f cs50.o
-	ln -s libcs50.so.$(VERSION) $(SONAME)
-	ln -s $(SONAME) libcs50.so
 	install -D -m 644 src/cs50.h build/include/cs50.h
 	mkdir -p build/lib build/src/libcs50
-	mv libcs50.so* build/lib
+	mv libcs50.so build/lib
 	cp -r src/* build/src/libcs50
 
 .PHONY: install
@@ -26,25 +21,42 @@ install: build docs
 
 .PHONY: clean
 clean:
-	rm -rf build debian/docs/ libcs50-* libcs50_*
+	rm -rf build *.deb
 
 # requires asciidoctor (gem install asciidoctor)
 .PHONY: docs
 docs:
-	asciidoctor -d manpage -b manpage -D debian/docs/ docs/*.adoc
+	asciidoctor -d manpage -b manpage -D build/docs/ docs/*.adoc
 
 .PHONY: deb
 deb: build docs
-	@echo "libcs50 ($(VERSION)-0ubuntu1) trusty; urgency=low" > debian/changelog
-	@echo "  * v$(VERSION)" >> debian/changelog
-	@echo " -- CS50 Sysadmins <sysadmins@cs50.harvard.edu>  $$(date --rfc-2822)" >> debian/changelog
-	mkdir -p libcs50-$(VERSION)/usr
-	rsync -a build/* libcs50-$(VERSION)/usr --exclude=hack
-	tar -cvzf libcs50_$(VERSION).orig.tar.gz libcs50-$(VERSION)
-	cp -r debian libcs50-$(VERSION)
-	cd libcs50-$(VERSION) && debuild -S -sa --lintian-opts --display-info --info --show-overrides
-	mkdir -p build/deb
-	mv libcs50-* libcs50_* build/deb
+	mkdir -p build/usr build/usr/share/man/man3
+	cp -r build/include build/lib build/src build/usr
+	cp -r build/docs/* build/usr/share/man/man3
+	mkdir -p build/usr
+	fpm \
+	--name libcs50 \
+	--version "$(VERSION)" \
+	--conflicts "libcs50 (<< $(VERSION))" \
+	--conflicts lib50-c \
+    --conflicts library50-c \
+	--provides libcs50 \
+	--provides lib50-c \
+	--provides library50-c \
+	--replaces "libcs50 (<= $(VERSION))" \
+	--replaces lib50-c \
+	--replaces library50-c \
+	--maintainer "CS50 <sysadmins@cs50.harvard.edu>" \
+	--after-install postinst \
+	--after-remove postrm \
+	--chdir build \
+	--input-type dir \
+	--output-type deb \
+	--deb-no-default-config-files \
+	--depends c-compiler \
+	--description "CS50 library for C" \
+	--url "" \
+	usr
 
 .PHONY: hack
 hack:
