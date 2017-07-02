@@ -14,7 +14,15 @@ deploy:
 - provider: packagecloud
   username: cs50
   repository: libcs50
-  dist: "ubuntu/trusty"
+  dist:
+  - "ubuntu/precise"
+  - "ubuntu/trusty"
+  - "ubuntu/utopic"
+  - "ubuntu/vivid"
+  - "ubuntu/wily"
+  - "ubuntu/xenial"
+  - "ubuntu/yakkety"
+  - "ubuntu/zesty"
   token: "${PACKAGECLOUD_TOKEN}"
   package_glob: "*.deb"
   skip_cleanup: true
