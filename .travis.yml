@@ -15,11 +15,14 @@ deploy:
   }" --user bot50:$GITHUB_TOKEN https://api.github.com/repos/$TRAVIS_REPO_SLUG/releases'
   on:
     branch: master
-- provider: script
-  script: dput ppa:cs50/ppa build/deb/*.changes
+- provider: packagecloud
+  username: cs50
+  repository: libcs50
+  token: "${PACKAGECLOUD_TOKEN}"
+  package_glob: "*.deb"
   skip_cleanup: true
   on:
-    branch: master
+    branch: packagecloud
 notifications:
   slack:
     secure: ISOGlNSGXOrMBrKTnjTWQXVjjoBn78++xF1mUv/PYZxn3J4L4WpybLLjAuBENsD7YeHSaXUnSbIV5mDzlx5Q1cyrS+auGOHqi5xGV01zNBB1Fig1SkUf7zJS8KyjiPKyi+DexnTt1BY4xaA1uGzq9hoGZEPXKHNlz4v1I6f6fHQ=
