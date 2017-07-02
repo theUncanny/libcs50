@@ -1,7 +1,7 @@
 dist: trusty
 branches:
   except: "/^v\\d/"
-before_install: gem install asciidoctor
+before_install: gem install asciidoctor fpm
 install: true
 script: make deb
 deploy:
