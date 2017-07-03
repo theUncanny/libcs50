@@ -1,20 +1,28 @@
 language: c
 dist: trusty
+addons:
+  apt:
+    packages: rpm
 env:
-  global: OS=ubuntu
   matrix:
-  - DIST="trusty"
-  - DIST="utopic"
-  - DIST="vivid" 
-  - DIST="wily"
-  - DIST="xenial"
-  - DIST="yakkety"
-  - DIST="zesty"
+  - OS=fedora DIST=20
+  - OS=fedora DIST=21
+  - OS=fedora DIST=22
+  - OS=fedora DIST=23
+  - OS=fedora DIST=24
+  - OS=fedora DIST=25
+  - OS=ubuntu DIST=trusty
+  - OS=ubuntu DIST="utopic"
+  - OS=ubuntu DIST="vivid"
+  - OS=ubuntu DIST="wily"
+  - OS=ubuntu DIST="xenial"
+  - OS=ubuntu DIST="yakkety"
+  - OS=ubuntu DIST="zesty"
 branches:
   except: "/^v\\d/"
 before_install: gem install asciidoctor fpm
 install: true
-script: make deb
+script: make packages
 deploy:
 - provider: script
   script: 'curl --fail --data "{ \"tag_name\": \"v$(make version)\",

@@ -58,6 +58,26 @@ deb: build docs
 	--url "" \
 	usr
 
+.PHONY: rpm
+rpm: build docs
+	mkdir -p build/usr build/usr/share/man/man3
+	cp -r build/include build/lib build/src build/usr
+	cp -r build/docs/* build/usr/share/man/man3
+	mkdir -p build/usr
+	fpm \
+	-C build \
+	-m "CS50 <sysadmins@cs50.harvard.edu>" \
+	-n libcs50 \
+	-s dir \
+	-t rpm \
+	-v "$(VERSION)" \
+	--description "CS50 library for C" \
+	usr
+
+# used by .travis.yml
+.PHONY: packages
+packages: deb rpm
+
 .PHONY: hack
 hack:
 	rm -rf build/hack && mkdir -p build/hack
