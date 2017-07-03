@@ -1,6 +1,15 @@
 language: c
 dist: trusty
-env: DISTS="precise trusty utopic vivid wily xenial yakkety zesty"
+env:
+  global: OS=ubuntu
+  matrix:
+  - DIST="trusty"
+  - DIST="utopic"
+  - DIST="vivid" 
+  - DIST="wily"
+  - DIST="xenial"
+  - DIST="yakkety"
+  - DIST="zesty"
 branches:
   except: "/^v\\d/"
 before_install: gem install asciidoctor fpm
@@ -15,7 +24,7 @@ deploy:
   on:
     branch: master
 - provider: script
-  script: for dist in "$DISTS"; do package_cloud push "cs50/libcs50/ubuntu/$dist" *.deb; done
+  script: package_cloud push "cs50/libcs50/${OS}/${DIST}" *.deb
   skip_cleanup: true
   on:
     branch: packagecloud
