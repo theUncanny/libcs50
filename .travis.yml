@@ -15,7 +15,6 @@ branches:
 before_install: gem install asciidoctor fpm
 install: true
 script: make deb
-before_deploy: gem install package_cloud
 deploy:
 - provider: script
   script: 'curl --fail --data "{ \"tag_name\": \"v$(make version)\",
@@ -23,8 +22,11 @@ deploy:
   }" --user bot50:$GITHUB_TOKEN https://api.github.com/repos/$TRAVIS_REPO_SLUG/releases'
   on:
     branch: master
-- provider: script
-  script: package_cloud push "cs50/libcs50/${OS}/${DIST}" *.deb
+- provider: packagecloud
+  repository: libcs50
+  username: cs50
+  token: "${PACKAGECLOUD_TOKEN}"
+  dist: "${OS}/${DIST}"
   skip_cleanup: true
   on:
     branch: packagecloud
